@@ -1,0 +1,15 @@
+steps:
+    - task: Npm@1
+      displayName: 'npm Install'
+      inputs:
+          workingDir: 'app'
+          verbose: false
+          customCommand: 'install --verbose'
+    # - task: Npm@1
+    #   displayName: 'Test and Coverage'
+    #   enabled: true
+    #   inputs:
+    #       command: custom
+    #       workingDir: 'app'
+    #       verbose: false
+    #       customCommand: 'test --verbose'

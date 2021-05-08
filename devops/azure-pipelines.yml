@@ -1,0 +1,27 @@
+name: $(Build.SourceBranchName).$(date:yyyyMMdd)$(rev:.r)
+
+trigger:
+    branches:
+        include:
+            - master
+            - feature/*
+
+resources:
+    - repo: self
+      clean: all
+      fetchDepth: 1
+
+stages:
+    - stage: Build
+      displayName: Build and Publish
+      jobs:
+          - job: Linux
+            displayName: Build and publication of artifact
+            pool:
+                name: Build
+                demands:
+                    - Agent.OS -equals Linux
+            steps:
+                - template: pipelines/build.yml
+                - ${{ if contains(variables['Build.SourceBranch'], 'refs/heads/master') }}:
+                      - template: pipelines/deploy.yml
