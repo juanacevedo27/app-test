@@ -3,14 +3,14 @@ const express = require('express');
 const fileUpload = require('express-fileupload')
 const app = express();
 const xlsx = require('xlsx');
-const _rest = '/upload'
+const _folder = '/files'
 
 app.use(fileUpload())
 
 // OK
 app.get('/listfiles', (req, res) => {
     const path = require('path');
-    const dir = `${__dirname}/files`;
+    const dir = `${__dirname}${_folder}`;
     if (!fs.existsSync(dir)) {
         return res.json({
             ok: true,
@@ -81,7 +81,7 @@ function checkFile(req, res) {
 
 function downloadFile(req, res) {
     const file = req.params.fileName
-    let filePath = `${__dirname}/files/${file}`;
+    let filePath = `${__dirname}${_folder}/${file}`;
     if (fs.existsSync(filePath)) {
         return res.status(200).download(filePath)
     } else {
@@ -93,11 +93,11 @@ function downloadFile(req, res) {
 }
 
 function uploadFile(req, res, calledBy) {
-    const dir = `${__dirname}/files`;
+    const dir = `${__dirname}${_folder}`;
     if (!fs.existsSync(dir)) fs.mkdirSync(dir);
     let EDFile = req.files.file
     const fileName = EDFile.name.replace(/\s+/g, '')
-    EDFile.mv(`${__dirname}/files/${fileName}`, err => {
+    EDFile.mv(`${__dirname}${_folder}/${fileName}`, err => {
         if (err) {
             console.log(err.message)
             return res.status(500).send({ message: err, err: err.message })
@@ -106,13 +106,13 @@ function uploadFile(req, res, calledBy) {
         if (calledBy === 'UPLOAD') {
             return res.status(200).send({ message: `Archivo '${EDFile.name}' cargado y transformado, puede buscarlo con el siguiente nombre: ${result.fileName}` })
         } else {
-            return res.status(200).download(`${__dirname}/files/${result.fileName}`)
+            return res.status(200).download(`${__dirname}${_folder}/${result.fileName}`)
         }
     })
 }
 
 function readExcel(fileName) {
-    const path = `${__dirname}/files/${fileName}`
+    const path = `${__dirname}${_folder}/${fileName}`
     const wb = xlsx.readFile(path)
     const wbs = wb.SheetNames;
     const sheet = wbs[0];
@@ -125,7 +125,7 @@ function writeTxt(data, originalName) {
     const fs = require('fs');
     const transfName = originalName.split('.')
     const fileName = `transformed_${transfName[0]}.txt`
-    const fullPath = `${__dirname}/files/${fileName}`
+    const fullPath = `${__dirname}${_folder}/${fileName}`
     let writeStream = fs.createWriteStream(fullPath);
     writeStream.write(data);
     writeStream.on('finish', () => {
