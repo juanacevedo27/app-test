@@ -120,4 +120,20 @@ function writeTxt(data, originalName) {
     };
 }
 
+app.get('/listfiles', (req, res) => {
+    const path = require('path');
+    const fs = require('fs');
+    const directoryPath = path.join(__dirname, 'files');
+    const arrFiles = [];
+    fs.readdir(directoryPath, function(err, files) {
+        if (err) {
+            return console.log('Unable to scan directory: ' + err);
+        }
+        files.forEach((file) => arrFiles.push({ file, path: path.resolve(file) }));
+        res.status(200).json({
+            ok: true,
+            files: arrFiles
+        })
+    });
+})
 module.exports = app;
