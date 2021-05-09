@@ -79,7 +79,7 @@ function uploadFile(req, res, calledBy) {
     EDFile.mv(`${__dirname}/files/${fileName}`, err => {
         if (err) {
             console.log(err)
-            return res.status(500).send({ message: err })
+            return res.status(500).send({ message: err, err })
         }
         const result = readExcel(fileName);
         console.log(calledBy)
