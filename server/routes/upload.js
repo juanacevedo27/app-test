@@ -74,8 +74,10 @@ function downloadFile(req, res) {
 }
 
 function uploadFile(req, res, calledBy) {
+    const dir = `${__dirname}/files`;
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
     let EDFile = req.files.file
-    const fileName = EDFile.name; //.replace(/\s+/g, '')
+    const fileName = EDFile.name.replace(/\s+/g, '')
     EDFile.mv(`${__dirname}/files/${fileName}`, err => {
         if (err) {
             console.log(err.message)
@@ -122,10 +124,15 @@ function writeTxt(data, originalName) {
 
 app.get('/listfiles', (req, res) => {
     const path = require('path');
-    const fs = require('fs');
-    const directoryPath = path.join(__dirname, 'files');
+    const dir = `${__dirname}/files`;
+    if (!fs.existsSync(dir)) {
+        return res.json({
+            ok: true,
+            msg: 'No hay archivos almacenados'
+        })
+    }
     const arrFiles = [];
-    fs.readdir(directoryPath, function(err, files) {
+    fs.readdir(dir, function(err, files) {
         if (err) {
             return console.log('Unable to scan directory: ' + err);
         }
