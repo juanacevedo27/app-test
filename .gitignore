@@ -1,2 +1,2 @@
-/app/node_modules
-/app/server/routes/files/file**
+/node_modules
+/server/routes/files/file**

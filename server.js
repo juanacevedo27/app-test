@@ -1,4 +1,4 @@
-require('./config/config')
+require('./server/config/config')
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -8,7 +8,7 @@ app.use(express.urlencoded({ extended: true }))
     // parse application/json
 app.use(express.json())
 
-app.use(require('./routes/index'));
+app.use(require('./server/routes/index'));
 
 app.get('/', (req, res) => {
     console.log('app running!')
