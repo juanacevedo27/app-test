@@ -7,9 +7,28 @@ const _rest = '/upload'
 
 app.use(fileUpload())
 
-// PENDIENTES::::::::::::::::::
-// revisar como garantizar la alta disponibilidad
-// revisar los costos de los servicios codepipeline y beanstalk
+// OK
+app.get('/listfiles', (req, res) => {
+    const path = require('path');
+    const dir = `${__dirname}/files`;
+    if (!fs.existsSync(dir)) {
+        return res.json({
+            ok: true,
+            msg: 'No hay archivos almacenados'
+        })
+    }
+    const arrFiles = [];
+    fs.readdir(dir, function(err, files) {
+        if (err) {
+            return console.log('Unable to scan directory: ' + err);
+        }
+        files.forEach((file) => arrFiles.push({ file, path: path.resolve(file) }));
+        return res.status(200).json({
+            ok: true,
+            files: arrFiles
+        })
+    });
+})
 
 // OK
 app.get('/download/:fileName', function(req, res) {
@@ -19,6 +38,19 @@ app.get('/download/:fileName', function(req, res) {
 // OK
 app.post('/upload', (req, res) => {
     const restApi = 'UPLOAD'
+    if (req.files && req.files.file) {
+        checkFile(req, res)
+        uploadFile(req, res, restApi)
+    } else {
+        return res.status(400).json({
+            ok: false,
+            msg: `Debe enviar un archivo para cargarlo con la llave llamada 'file'`
+        })
+    }
+})
+
+app.post('/upload_transform', function(req, res) {
+    const restApi = 'UPLOAD_TRANSFORM'
     if (req.files && req.files.file) {
         checkFile(req, res)
         uploadFile(req, res, restApi)
@@ -47,19 +79,6 @@ function checkFile(req, res) {
     return true;
 }
 
-app.post('/upload_transform', function(req, res) {
-    const restApi = 'UPLOAD_TRANSFORM'
-    if (req.files && req.files.file) {
-        checkFile(req, res)
-        uploadFile(req, res, restApi)
-    } else {
-        return res.status(400).json({
-            ok: false,
-            msg: `Debe enviar un archivo para cargarlo con la llave llamada 'file'`
-        })
-    }
-})
-
 function downloadFile(req, res) {
     const file = req.params.fileName
     let filePath = `${__dirname}/files/${file}`;
@@ -84,11 +103,9 @@ function uploadFile(req, res, calledBy) {
             return res.status(500).send({ message: err, err: err.message })
         }
         const result = readExcel(fileName);
-        console.log(calledBy)
         if (calledBy === 'UPLOAD') {
             return res.status(200).send({ message: `Archivo '${EDFile.name}' cargado y transformado, puede buscarlo con el siguiente nombre: ${result.fileName}` })
         } else {
-            console.log(result.fullPath)
             return res.status(200).download(`${__dirname}/files/${result.fileName}`)
         }
     })
@@ -122,25 +139,4 @@ function writeTxt(data, originalName) {
     };
 }
 
-app.get('/listfiles', (req, res) => {
-    const path = require('path');
-    const dir = `${__dirname}/files`;
-    if (!fs.existsSync(dir)) {
-        return res.json({
-            ok: true,
-            msg: 'No hay archivos almacenados'
-        })
-    }
-    const arrFiles = [];
-    fs.readdir(dir, function(err, files) {
-        if (err) {
-            return console.log('Unable to scan directory: ' + err);
-        }
-        files.forEach((file) => arrFiles.push({ file, path: path.resolve(file) }));
-        res.status(200).json({
-            ok: true,
-            files: arrFiles
-        })
-    });
-})
 module.exports = app;
