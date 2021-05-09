@@ -104,7 +104,11 @@ function uploadFile(req, res, calledBy) {
         }
         const result = readExcel(fileName);
         if (calledBy === 'UPLOAD') {
-            return res.status(200).send({ message: `Archivo '${EDFile.name}' cargado y transformado, puede buscarlo con el siguiente nombre: ${result.fileName}` })
+            return res.status(200).send({
+                ok: true,
+                message: `Archivo '${EDFile.name}' cargado y transformado, puede buscarlo con el siguiente nombre: ${result.fileName}`,
+                fileName: result.fileName
+            })
         } else {
             return res.status(200).download(`${__dirname}${_folder}/${result.fileName}`)
         }
