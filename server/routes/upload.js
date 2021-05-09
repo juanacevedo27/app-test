@@ -78,7 +78,7 @@ function uploadFile(req, res, calledBy) {
     const fileName = EDFile.name.replace(/\s+/g, '')
     EDFile.mv(`${__dirname}/files/${fileName}`, err => {
         if (err) {
-            console.log(err)
+            console.log(err.message)
             return res.status(500).send({ message: err, err })
         }
         const result = readExcel(fileName);
