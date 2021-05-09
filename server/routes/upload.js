@@ -1,14 +1,21 @@
 const express = require('express');
+const { hostname } = require('os');
 const app = express();
 const xlsx = require('xlsx');
 const _rest = '/upload'
+
+app.get('/download', function(req, res) {
+    var file = __dirname + '/files/transfFile.txt';
+    res.download(file); // Set disposition and send it.
+});
 
 app.post(_rest, function(req, res) {
     const result = readExcel();
     res.json({
         process: true,
         msg: 'process to upload file',
-        result: `file created: ${result}`
+        result: `file created: ${result.fileName}`,
+        data: result.data
     })
 })
 
@@ -24,16 +31,18 @@ function readExcel() {
 
 function writeTxt(data) {
     const fs = require('fs');
-    const d = new Date()
-    const date = `${d.getFullYear()}-${d.getMonth()}-${d.getDay()}--${d.getTime()}`
-    const fileName = `file-${date}.txt`
-    let writeStream = fs.createWriteStream(`${__dirname}/files/${fileName}`);
+    const fileName = 'transfFile.txt'
+    const fullPath = `${__dirname}/files/${fileName}`
+    let writeStream = fs.createWriteStream(fullPath);
     writeStream.write(data);
     writeStream.on('finish', () => {
         console.log('finish');
     });
     writeStream.end();
-    return fileName;
+    return {
+        fileName: fullPath,
+        data: data
+    };
     // download(fileName);
 }
 
