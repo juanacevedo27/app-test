@@ -75,7 +75,7 @@ function downloadFile(req, res) {
 
 function uploadFile(req, res, calledBy) {
     let EDFile = req.files.file
-    const fileName = EDFile.name.replace(/\s+/g, '')
+    const fileName = EDFile.name; //.replace(/\s+/g, '')
     EDFile.mv(`${__dirname}/files/${fileName}`, err => {
         if (err) {
             console.log(err.message)
