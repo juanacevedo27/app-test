@@ -8,15 +8,61 @@ const _rest = '/upload'
 app.use(fileUpload())
 
 // PENDIENTES::::::::::::::::::
-// probar si el archivo no es excel, si está vacío
-
-
-
+// revisar como garantizar la alta disponibilidad
+// revisar los costos de los servicios codepipeline y beanstalk
 
 // OK
 app.get('/download/:fileName', function(req, res) {
+    downloadFile(req, res)
+});
+
+// OK
+app.post('/upload', (req, res) => {
+    const restApi = 'UPLOAD'
+    if (req.files && req.files.file) {
+        checkFile(req, res)
+        uploadFile(req, res, restApi)
+    } else {
+        return res.status(400).json({
+            ok: false,
+            msg: `Debe enviar un archivo para cargarlo con la llave llamada 'file'`
+        })
+    }
+})
+
+function checkFile(req, res) {
+    let file = req.files.file.name.split('.');
+    if (file.length > 2) {
+        return res.status(400).json({
+            ok: false,
+            msg: 'Parece que el nombre del archivo contiene 2 extensiones, asegurese de que solo contenga 1 punto(.)'
+        });
+    }
+    if (file[1].toLowerCase() != 'xlsx') {
+        return res.status(400).json({
+            ok: false,
+            msg: `El archivo debe contener un formato .xlsx, está intentando cargar un tipo .${file[1]}`
+        });
+    }
+    return true;
+}
+
+app.post('/upload_transform', function(req, res) {
+    const restApi = 'UPLOAD_TRANSFORM'
+    if (req.files && req.files.file) {
+        checkFile(req, res)
+        uploadFile(req, res, restApi)
+    } else {
+        return res.status(400).json({
+            ok: false,
+            msg: `Debe enviar un archivo para cargarlo con la llave llamada 'file'`
+        })
+    }
+})
+
+function downloadFile(req, res) {
     const file = req.params.fileName
-    var filePath = `${__dirname}/files/${file}`;
+    let filePath = `${__dirname}/files/${file}`;
     if (fs.existsSync(filePath)) {
         return res.status(200).download(filePath)
     } else {
@@ -25,9 +71,9 @@ app.get('/download/:fileName', function(req, res) {
             msg: `archivo con el nombre '${file}' no encontrado`
         })
     }
-});
-// OK
-app.post('/upload', (req, res) => {
+}
+
+function uploadFile(req, res, calledBy) {
     let EDFile = req.files.file
     const fileName = EDFile.name.replace(/\s+/g, '')
     EDFile.mv(`${__dirname}/files/${fileName}`, err => {
@@ -36,24 +82,16 @@ app.post('/upload', (req, res) => {
             return res.status(500).send({ message: err })
         }
         const result = readExcel(fileName);
-        return res.status(200).send({ message: `Archivo '${EDFile.name}' cargado, puede buscarlo con el siguiente nombre: ${result.fileName}` })
-    })
-})
-
-app.post('/upload_transform', function(req, res) {
-    let EDFile = req.files.file
-    const fileName = EDFile.name.replace(/\s+/g, '')
-    EDFile.mv(`${__dirname}/files/${fileName}`, err => {
-        if (err) {
-            console.log(err)
-            return res.status(500).send({ message: err })
+        console.log(calledBy)
+        if (calledBy === 'UPLOAD') {
+            return res.status(200).send({ message: `Archivo '${EDFile.name}' cargado y transformado, puede buscarlo con el siguiente nombre: ${result.fileName}` })
+        } else {
+            console.log(result.fullPath)
+            return res.status(200).download(`${__dirname}/files/${result.fileName}`)
         }
-        const result = readExcel(fileName);
-        return res.status(200).download(result.fullPath);
     })
-})
+}
 
-// probar si el archivo no es excel, si está vacío
 function readExcel(fileName) {
     const path = `${__dirname}/files/${fileName}`
     const wb = xlsx.readFile(path)
@@ -66,7 +104,8 @@ function readExcel(fileName) {
 
 function writeTxt(data, originalName) {
     const fs = require('fs');
-    const fileName = `transformed_${originalName}`
+    const transfName = originalName.split('.')
+    const fileName = `transformed_${transfName[0]}.txt`
     const fullPath = `${__dirname}/files/${fileName}`
     let writeStream = fs.createWriteStream(fullPath);
     writeStream.write(data);
