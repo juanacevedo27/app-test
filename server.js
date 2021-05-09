@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
     console.log('app running!')
     res.json({
         ok: true,
-        msg: 'app running!'
+        msg: 'app running on aws!!'
     })
 })
 
