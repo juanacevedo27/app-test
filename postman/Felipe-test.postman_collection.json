@@ -1,0 +1,111 @@
+{
+	"info": {
+		"_postman_id": "3d65b568-26a0-42ff-bd0a-90b69d4cad15",
+		"name": "Felipe-test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Download",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/download/transformed_prueba2.txt",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"download",
+						"transformed_prueba2.txt"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/Users/mac/Downloads/prueba2.xlsx"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/upload",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List files",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/Users/mac/Downloads/prueba2.xlsx"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/listfiles",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"listfiles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload and transform",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/Users/mac/Downloads/prueba Dllo.xlsx"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/upload_transform",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"upload_transform"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
